@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tandeem HR - Assign Vouchers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #334155;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #1e293b;
+            font-size: 1.8rem;
+        }
+        
+        .header .breadcrumb {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .assignment-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 30px;
+        }
+        
+        .main-assignment {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        
+        .assignment-header {
+            padding: 25px 30px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+        
+        .assignment-header h2 {
+            margin-bottom: 5px;
+        }
+        
+        .assignment-header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .voucher-selection {
+            padding: 30px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .voucher-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .voucher-option {
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .voucher-option:hover {
+            border-color: #3b82f6;
+            transform: translateY(-2px);
+        }
+        
+        .voucher-option.selected {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+        
+        .voucher-option .icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+        
+        .voucher-option h4 {
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        
+        .voucher-option p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .employee-selection {
+            padding: 30px;
+        }
+        
+        .search-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .filter-select {
+            padding: 12px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            cursor: pointer;
+        }
+        
+        .employee-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        
+        .employee-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .employee-item:hover {
+            background: #f8fafc;
+        }
+        
+        .employee-item:last-child {
+            border-bottom: none;
+        }
+        
+        .employee-checkbox {
+            margin-right: 15px;
+            width: 18px;
+            height: 18px;
+            accent-color: #3b82f6;
+        }
+        
+        .employee-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .employee-info {
+            flex: 1;
+        }
+        
+        .employee-info h4 {
+            color: #1e293b;
+            margin-bottom: 3px;
+        }
+        
+        .employee-info p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .employee-performance {
+            text-align: right;
+        }
+        
+        .performance-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+        
+        .performance-excellent {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .performance-good {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .performance-average {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .assignment-summary {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 25px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+        
+        .summary-header {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .summary-header h3 {
+            color: #1e293b;
+            margin-bottom: 5px;
+        }
+        
+        .summary-header p {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        .selected-voucher {
+            background: #eff6ff;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .selected-voucher .icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .selected-employees {
+            margin-bottom: 20px;
+        }
+        
+        .selected-employees h4 {
+            color: #1e293b;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .selected-list {
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .selected-employee {
+            display: flex;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .selected-employee:last-child {
+            border-bottom: none;
+        }
+        
+        .selected-employee .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            margin-right: 10px;
+        }
+        
+        .custom-message {
+            margin-bottom: 20px;
+        }
+        
+        .custom-message label {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 0.9rem;
+        }
+        
+        .custom-message textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            resize: vertical;
+            min-height: 80px;
+            font-family: inherit;
+        }
+        
+        .custom-message textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .cost-summary {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .cost-summary .row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .cost-summary .total {
+            font-weight: bold;
+            color: #1e293b;
+            border-top: 1px solid #e5e7eb;
+            padding-top: 8px;
+        }
+        
+        .assign-button {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .assign-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+        
+        .assign-button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        @media (max-width: 1024px) {
+            .assignment-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .assignment-summary {
+                position: static;
+            }
+            
+            .voucher-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-filter {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Assign Vouchers to Employees</h1>
+            <div class="breadcrumb">Dashboard > Vouchers > Assignment</div>
+        </div>
+        
+        <div class="assignment-container">
+            <div class="main-assignment">
+                <div class="assignment-header">
+                    <h2>🎯 Voucher Assignment</h2>
+                    <p>Select voucher type and employees to reward outstanding performance</p>
+                </div>
+                
+                <div class="voucher-selection">
+                    <h3 style="margin-bottom: 20px; color: #1e293b;">Select Voucher Type</h3>
+                    <div class="voucher-grid">
+                        <div class="voucher-option" onclick="selectVoucher('restaurant', '🍽️', 'Restaurant Voucher', '50 MAD')">
+                            <span class="icon">🍽️</span>
+                            <h4>Restaurant Voucher</h4>
+                            <p>50 MAD • 25 available</p>
+                        </div>
+                        
+                        <div class="voucher-option" onclick="selectVoucher('shopping', '🛍️', 'Shopping Voucher', '100 MAD')">
+                            <span class="icon">🛍️</span>
+                            <h4>Shopping Voucher</h4>
+                            <p>100 MAD • 32 available</p>
+                        </div>
+                        
+                        <div class="voucher-option" onclick="selectVoucher('entertainment', '🎬', 'Entertainment Voucher', '75 MAD')">
+                            <span class="icon">🎬</span>
+                            <h4>Entertainment</h4>
+                            <p>75 MAD • 18 available</p>
+                        </div>
+                        
+                        <div class="voucher-option" onclick="selectVoucher('wellness', '💆', 'Wellness & Spa', '150 MAD')">
+                            <span class="icon">💆</span>
+                            <h4>Wellness & Spa</h4>
+                            <p>150 MAD • 14 available</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="employee-selection">
+                    <h3 style="margin-bottom: 20px; color: #1e293b;">Select Employees</h3>
+                    
+                    <div class="search-filter">
+                        <input type="text" class="search-box" placeholder="Search employees by name or department..." onkeyup="filterEmployees(this.value)">
+                        <select class="filter-select" onchange="filterByPerformance(this.value)">
+                            <option value="">All Performance Levels</option>
+                            <option value="excellent">Excellent</option>
+                            <option value="good">Good</option>
+                            <option value="average">Average</option>
+                        </select>
+                    </div>
+                    
+                    <div class="employee-list" id="employeeList">
+                        <div class="employee-item" data-performance="excellent" data-name="sarah johnson">
+                            <input type="checkbox" class="employee-checkbox" onchange="updateSelection(this, 'Sarah Johnson', 'SJ')">
+                            <div class="employee-avatar">SJ</div>
+                            <div class="employee-info">
+                                <h4>Sarah Johnson</h4>
+                                <p>Marketing Manager • Closed 5 major deals this quarter</p>
+                            </div>
+                            <div class="employee-performance">
+                                <div class="performance-badge performance-excellent">Excellent</div>
+                                <p style="font-size: 0.8rem; color: #64748b;">Q4 Top Performer</p>
+                            </div>
+                        </div>
+                        
+                        <div class="employee-item" data-performance="good" data-name="ahmed hassan">
+                            <input type="checkbox" class="employee-checkbox" onchange="updateSelection(this, 'Ahmed Hassan', 'AH')">
+                            <div class="employee-avatar">AH</div>
+                            <div class="employee-info">
+                                <h4>Ahmed Hassan</h4>
+                                <p>Software Developer • Delivered project ahead of schedule</p>
+                            </div>
+                            <div class="employee-performance">
+                                <div class="performance-badge performance-good">Good</div>
+                                <p style="font-size: 0.8rem; color: #64748b;">Project Excellence</p>
+                            </div>
+                        </div>
+                        
+                        <div class="employee-item" data-performance="excellent" data-name="fatima zahra">
+                            <input type="checkbox" class="employee-checkbox" onchange="updateSelection(this, 'Fatima Zahra', 'FZ')">
+                            <div class="employee-avatar">FZ</div>
+                            <div class="employee-info">
+                                <h4>Fatima Zahra</h4>
+                                <p>Sales Executive • Exceeded targets by 150%</p>
+                            </div>
+                            <div class="employee-performance">
+                                <div class="performance-badge performance-excellent">Excellent</div>
+                                <p style="font-size: 0.8rem; color: #64748b;">Sales Champion</p>
+                            </div>
+                        </div>
+                        
+                        <div class="employee-item" data-performance="good" data-name="omar benali">
+                            <input type="checkbox" class="employee-checkbox" onchange="updateSelection(this, 'Omar Benali', 'OB')">
+                            <div class="employee-avatar">OB</div>
+                            <div class="employee-info">
+                                <h4>Omar Benali</h4>
+                                <p>Customer Support • 98% satisfaction rating</p>
+                            </div>
+                            <div class="employee-performance">
+                                <div class="performance-badge performance-good">Good</div>
+                                <p style="font-size: 0.8rem; color: #64748b;">Customer Hero</p>
+                            </div>
+                        </div>
+                        
+                        <div class="employee-item" data-performance="average" data-name="youssef alami">
+                            <input type="checkbox" class="employee-checkbox" onchange="updateSelection(this, 'Youssef Alami', 'YA')">
+                            <div class="employee-avatar">YA</div>
+                            <div class="employee-info">
+                                <h4>Youssef Alami</h4>
+                                <p>HR Coordinator • Improved team collaboration</p>
+                            </div>
+                            <div class="employee-performance">
+                                <div class="performance-badge performance-average">Average</div>
+                                <p style="font-size: 0.8rem; color: #64748b;">Team Player</p>
+                            </div>
+                        </div>
+                        
+                        <div class="employee-item" data-performance="excellent" data-name="aisha mokhtar">
+                            <input type="checkbox" class="employee-checkbox" onchange="updateSelection(this, 'Aisha Mokhtar', 'AM')">
+                            <div class="employee-avatar">AM</div>
+                            <div class="employee-info">
+                                <h4>Aisha Mokhtar</h4>
+                                <p>Finance Manager • Saved company 20% on costs</p>
+                            </div>
+                            <div class="employee-performance">
+                                <div class="performance-badge performance-excellent">Excellent</div>
+                                <p style="font-size: 0.8rem; color: #64748b;">Cost Optimizer</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="assignment-summary">
+                <div class="summary-header">
+                    <h3>Assignment Summary</h3>
+                    <p>Review your voucher assignment details</p>
+                </div>
+                
+                <div id="selectedVoucherDisplay" style="display: none;">
+                    <div class="selected-voucher">
+                        <span class="icon" id="voucherIcon">🎟️</span>
+                        <h4 id="voucherName">Select a voucher type</h4>
+                        <p id="voucherValue">-</p>
+                    </div>
+                </div>
+                
+                <div class="selected-employees">
+                    <h4>Selected Employees (<span id="selectedCount">0</span>)</h4>
+                    <div class="selected-list" id="selectedList">
+                        <p style="color: #64748b; font-size: 0.9rem; text-align: center; padding: 20px;">No employees selected</p>
+                    </div>
+                </div>
+                
+                <div class="custom-message">
+                    <label>Custom Message (Optional)</label>
+                    <textarea placeholder="Congratulations on your outstanding performance! This voucher is a token of our appreciation for your hard work and dedication."></textarea>
+                </div>
+                
+                <div class="cost-summary">
+                    <div class="row">
+                        <span>Voucher Value:</span>
+                        <span id="voucherPrice">-</span>
+                    </div>
+                    <div class="row">
+                        <span>Quantity:</span>
+                        <span id="quantity">0</span>
+                    </div>
+                    <div class="row total">
+                        <span>Total Cost:</span>
+                        <span id="totalCost">0 MAD</span>
+                    </div>
+                </div>
+                
+                <button class="assign-button" id="assignBtn" disabled onclick="assignVouchers()">
+                    🎁 Assign Vouchers
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let selectedVoucher = null;
+        let selectedEmployees = [];
+        
+        function selectVoucher(type, icon, name, value) {
+            // Remove previous selection
+            document.querySelectorAll('.voucher-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Add selection to clicked option
+            event.target.closest('.voucher-option').classList.add('selected');
+            
+            selectedVoucher = { type, icon, name, value };
+            
+            // Update summary
+            document.getElementById('selectedVoucherDisplay').style.display = 'block';
+            document.getElementById('voucherIcon').textContent = icon;
+            document.getElementById('voucherName').textContent = name;
+            document.getElementById('voucherValue').textContent = value;
+            document.getElementById('voucherPrice').textContent = value;
+            
+            updateAssignButton();
+            updateCost();
+        }
+        
+        function updateSelection(checkbox, name, initials) {
+            if (checkbox.checked) {
+                selectedEmployees.push({ name, initials });
+            } else {
+                selectedEmployees = selectedEmployees.filter(emp => emp.name !== name);
+            }
+            
+            updateSelectedList();
+            updateAssignButton();
+            updateCost();
+        }
+        
+        function updateSelectedList() {
+            const selectedList = document.getElementById('selectedList');
+            const selectedCount = document.getElementById('selectedCount');
+            
+            selectedCount.textContent = selectedEmployees.length;
+            
+            if (selectedEmployees.length === 0) {
+                selectedList.innerHTML = '<p style="color: #64748b; font-size: 0.9rem; text-align: center; padding: 20px;">No employees selected</p>';
+            } else {
+                selectedList.innerHTML = selectedEmployees.map(emp => `
+                    <div class="selected-employee">
+                        <div class="avatar">${emp.initials}</div>
+                        <span>${emp.name}</span>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function updateAssignButton() {
+            const assignBtn = document.getElementById('assignBtn');
+            assignBtn.disabled = !(selectedVoucher && selectedEmployees.length > 0);
+        }
+        
+        function updateCost() {
+            const quantity = document.getElementById('quantity');
+            const totalCost = document.getElementById('totalCost');
+            
+            quantity.textContent = selectedEmployees.length;
+            
+            if (selectedVoucher && selectedEmployees.length > 0) {
+                const value = parseInt(selectedVoucher.value.split(' ')[0]);
+                const total = value * selectedEmployees.length;
+                totalCost.textContent = `${total} MAD`;
+            } else {
+                totalCost.textContent = '0 MAD';
+            }
+        }
+        
+        function filterEmployees(searchTerm) {
+            const employees = document.querySelectorAll('.employee-item');
+            employees.forEach(employee => {
+                const name = employee.getAttribute('data-name').toLowerCase();
+                const visible = name.includes(searchTerm.toLowerCase());
+                employee.style.display = visible ? 'flex' : 'none';
+            });
+        }
+        
+        function filterByPerformance(performance) {
+            const employees = document.querySelectorAll('.employee-item');
+            employees.forEach(employee => {
+                const empPerformance = employee.getAttribute('data-performance');
+                const visible = !performance || empPerformance === performance;
+                employee.style.display = visible ? 'flex' : 'none';
+            });
+        }
+        
+        function assignVouchers() {
+            if (!selectedVoucher || selectedEmployees.length === 0) return;
+            
+            const message = `🎉 Vouchers Assigned Successfully!
+            
+Voucher Type: ${selectedVoucher.name}
+Employees: ${selectedEmployees.length}
+Total Cost: ${document.getElementById('totalCost').textContent}
+
+Employees will receive push notifications immediately with their voucher codes.
+
+The vouchers will appear in their mobile app voucher section.`;
+            
+            alert(message);
+            
+            // Reset form
+            selectedVoucher = null;
+            selectedEmployees = [];
+            document.querySelectorAll('.voucher-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelectorAll('.employee-checkbox').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            document.getElementById('selectedVoucherDisplay').style.display = 'none';
+            updateSelectedList();
+            updateAssignButton();
+            updateCost();
+        }
+    </script>
+</body>
+</html>
